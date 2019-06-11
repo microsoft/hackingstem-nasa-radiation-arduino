@@ -1,10 +1,17 @@
-// --------------------HackingSTEM NASA Radiation-------------------------------
-// Measuring Radiation for use with the NASA Radiation lesson plan 
+// --------------------HackingSTEM EM Spectrum-------------------------------
+// This project is for use with the EM spectrum lesson plan 
 // available from Microsoft Education Workshop at http://aka.ms/hackingSTEM 
 // 
 // Overview: 
 // This sketch uses LEDs as light sensors (photodiode) to detect and measure 
 // different wavelengths in various types of light sources.
+//
+// Pins:
+// Pin A0: IR LED
+// Pin A1: Red LED
+// Pin A2: Green LED
+// Pin A3: Blue LED
+// Pin A4: UV LED
 //
 // This project uses an Arduino UNO microcontroller board. More information can
 // be found by visiting the Arduino website: 
@@ -14,35 +21,34 @@
 // are welcome! For source code and bug reports see: 
 // http://github.com/[TODO github path to Hacking STEM] 
 // 
-// Copyright 2019, Jen Fox (jenfoxbot) Microsoft EDU Workshop - HackingSTEM 
+// Copyright 2019, Jen Fox, Microsoft EDU Workshop - HackingSTEM 
 // MIT License terms detailed in LICENSE.txt 
 // ----------------------------------------------------------------------------
 
-// Program variables ----------------------------------------------------------
-int ledPins[6] = {A0, A1, A2, A3, A4, A5};
-const int kNumberOfLeds = 6;
+// Program variables for project sensors --------------------------------------
+const int kNumberOfLeds = 5;
+int kledPins[kNumberOfLeds] = {A0, A1, A2, A3, A4};
 
-// Excel variables ------------------------------------------------------------
-int colorSensors[6] = {1, 2, 3, 4, 5, 6};
+// Excel variables for storing data sent to Excel -----------------------------
+int colorSensors[kNumberOfLeds] = {1, 2, 3, 4, 5};
 
+//Serial data variables
+const char kDelimiter = ',';
+const int kSerialInterval = 50;
+unsigned long serialPreviousTime;
 
-// Serial data variables ------------------------------------------------------
-const byte kNumberOfChannelsFromExcel = 6; //Incoming Serial Data Array
-// IMPORTANT: This must be equal to number of channels set in Data Streamer
-
-const char kDelimiter = ',';    // Data Streamer expects a comma delimeter
-const int kSerialInterval = 50;   // Interval between serial writes
-unsigned long serialPreviousTime; // Timestamp to track serial interval
-
-char* arr[kNumberOfChannelsFromExcel];
 
 // SETUP ----------------------------------------------------------------------
 void setup() {
   // Initializations occur here
   Serial.begin(9600);    
-  _SFR_IO8(0x35) |= 0x10;   // global disable pull up resistors
+  _SFR_IO8(0x35) |= 0x10;   // A condensed method for disabling the internal 
+                            // pull up resistors in the Arduino.
 
-  analogReference(EXTERNAL);
+// This function changes the reference voltage for measuring the analog voltage
+// of the LEDs to a 3.3V reference. This is why we added the jumper cable 
+// between 3.3V to AREF!
+  analogReference(EXTERNAL); 
 
 }
 
@@ -52,15 +58,9 @@ void loop()
   // Process sensors
   processSensors();
 
-  // Read Excel variables from serial port (Data Streamer)
-  processIncomingSerial();
-
   // Process and send data to Excel via serial port (Data Streamer)
   processOutgoingSerial();
 
-  if ( strcmp ("Apple", arr[0]) == 0){ // Compares STR1 to STR2 returns 0 if true.
-      Serial.println("working");
-  }
 }
 
 // SENSOR INPUT CODE-----------------------------------------------------------
@@ -68,10 +68,10 @@ void processSensors()
 {
   // Read analog value of LED inputs
   for(int i = 0; i < kNumberOfLeds; i++){
-    colorSensors[i] = analogRead(ledPins[i]);
+    colorSensors[i] = analogRead(kledPins[i]);
   }
   
-  delay(10); //short delay to prevent overclocking
+  delay(10); //short delay to prevent the Arduino from overclocking
 }
 
 // Add any specialized methods and processing code here
@@ -101,36 +101,4 @@ void processOutgoingSerial()
     serialPreviousTime = millis(); // Reset serial interval timestamp
     sendDataToSerial(); 
   }
-}
-
-// INCOMING SERIAL DATA PROCESSING CODE----------------------------------------
-void processIncomingSerial()
-{
-  if(Serial.available()){
-    parseData(GetSerialData());
-  }
-}
-
-// Gathers bytes from serial port to build inputString
-char* GetSerialData()
-{
-  static char inputString[64]; // Create a char array to store incoming data
-  memset(inputString, 0, sizeof(inputString)); // Clear the memory from a pervious reading
-  while (Serial.available()){
-    Serial.readBytesUntil('\n', inputString, 64); //Read every byte in Serial buffer until line end or 64 bytes
-  }
-  //TODO reject string if comma count isn't >= to kNumberOfChannelsFromExcel -1 
-  return inputString;
-}
-
-// Seperate the data at each delimeter
-void parseData(char data[])
-{
-    char *token = strtok(data, ","); // Find the first delimeter and return the token before it
-    int index = 0; // Index to track storage in the array
-    while (token != NULL){ // Char* strings terminate w/ a Null character. We'll keep running the command until we hit it
-      arr[index] = token; // Assign the token to an array
-      token = strtok(NULL, ","); // Conintue to the next delimeter
-      index++; // incremenet index to store next value
-    }
 }
