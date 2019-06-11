@@ -1,6 +1,6 @@
 # Introduction 
- This project uses LEDs as light sensors (photodiode) to detect and measure 
- different wavelengths in various types of light sources.
+ This spectrometer project uses LEDs as light sensors (photodiode) to detect and measure 
+ different wavelengths in various types of light sources. 
 
 # Getting Started
 1.	Download lesson assets at https://aka.ms/hackingSTEM
@@ -12,10 +12,8 @@
 5. Go forth and science all the things!
 
 
-//# Contribute
-//We welcome pull requests for enhancements and bug fixes! You may also submit
-//feature requests and bugs you find:
-//https://github.com
+# Contribute
+We welcome pull requests for enhancements and bug fixes!
 
 #Make it your own!
 This project is licensed under the MIT open source license (see LICENSE.txt).
