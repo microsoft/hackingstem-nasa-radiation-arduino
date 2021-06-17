@@ -1,6 +1,7 @@
 // --------------------HackingSTEM EM Spectrum-------------------------------
 // This project is for use with the EM spectrum lesson plan 
-// available from Microsoft Education Workshop at http://aka.ms/hackingSTEM 
+// available from Microsoft Education Workshop at https://aka.ms/EMspectrum
+// http://aka.ms/hackingSTEM 
 // 
 // Overview: 
 // This sketch uses LEDs as light sensors (photodiode) to detect and measure 
